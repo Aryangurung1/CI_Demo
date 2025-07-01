@@ -11,3 +11,5 @@ COPY . .
 EXPOSE wrong_port
 
 CM ["yarn", "start"]
+
+
