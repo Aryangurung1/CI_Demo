@@ -1,4 +1,3 @@
-
 FROM node:20-alpine
 
 WORKDIR /app
@@ -9,6 +8,6 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-EXPOSE 5434
+EXPOSE wrong_port
 
-CMD ["yarn", "start"]
+CM ["yarn", "start"]
