@@ -1,1 +1,69 @@
-name: Build and Push Docker Image
+name: Fellowship Project CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  docker-build-push:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set Docker Tag
+        id: docker_tag
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/dev" ]]; then
+            TAG="dev-${GITHUB_SHA::7}"
+          elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            TAG="latest"
+          else
+            TAG=${GITHUB_REF#refs/tags/}
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Build and Push Frontend
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
+
+      - name: Build and Push Backend1
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }} ./backend1
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
+
+      - name: Build and Push Backend2
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }} ./backend2
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }}
+
+  pull-request-checks:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint Commits
+        uses: wagoid/commitlint-github-action@v5
+      - name: Test Build Frontend Dockerfile
+        run: docker build -t test-frontend ./frontend
+
+      - name: Test Build Backend1 Dockerfile
+        run: docker build -t test-backend1 ./backend1
+
+      - name: Test Build Backend2 Dockerfile
+        run: docker build -t test-backend2 ./backend2
