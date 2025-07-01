@@ -9,6 +9,6 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
-EXPOSE wrong_ports
+EXPOSE 5434
 
-CM ["yarn", "start"]
+CMD ["yarn", "start"]
