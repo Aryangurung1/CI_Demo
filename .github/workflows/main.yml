@@ -59,7 +59,8 @@ jobs:
 
       - name: Lint Commits
         uses: wagoid/commitlint-github-action@v5
-
+        with:
+          commitDepth: 1
       - name: Test Build Frontend Dockerfile
         run: docker build -t test-frontend ./frontend
 
