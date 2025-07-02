@@ -13,11 +13,21 @@ on:
 
 jobs:
   docker-build-push:
-    runs-on: ubuntu-latest
+    runs-on: [frontend]
     if: github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@v4
-
+      - run: sudo apt-get update
+      - run: sudo apt-get install ca-certificates curl
+      - run: sudo install -m 0755 -d /etc/apt/keyrings
+      - run: sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      - run: sudo chmod a+r /etc/apt/keyrings/docker.asc
+      - run: echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+             sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      - run: sudo apt-get update
+      - run: sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -38,32 +48,48 @@ jobs:
 
       - name: Build and Push Frontend
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
+          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
+          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
+      - run: sudo docker images
+      
 
-      - name: Build and Push Backend1
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }} ./backend1
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
-
-      - name: Build and Push Backend2
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }} ./backend2
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }}
-
-  pull-request-checks:
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/')
+      
+  docker-backend-push:
+    runs-on: [backend]
+    if: github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@v4
+      - run: sudo apt-get update
+      - run: sudo apt-get install ca-certificates curl
+      - run: sudo install -m 0755 -d /etc/apt/keyrings
+      - run: sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+      - run: sudo chmod a+r /etc/apt/keyrings/docker.asc
+      - run: echo \
+            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+            $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}") stable" | \
+             sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      - run: sudo apt-get update
+      - run: sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Lint Commits
-        uses: wagoid/commitlint-github-action@v5
-      - name: Test Build Frontend Dockerfile
-        run: docker build -t test-frontend ./frontend
-
-      - name: Test Build Backend1 Dockerfile
-        run: docker build -t test-backend1 ./backend1
-
-      - name: Test Build Backend2 Dockerfile
-        run: docker build -t test-backend2 ./backend2
+      - name: Set Docker Tag
+        id: docker_tag
+        run: |
+          if [[ "${GITHUB_REF}" == "refs/heads/dev" ]]; then
+            TAG="dev-${GITHUB_SHA::7}"
+          elif [[ "${GITHUB_REF}" == "refs/heads/main" ]]; then
+            TAG="latest"
+          else
+            TAG=${GITHUB_REF#refs/tags/}
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+      - name: Build and Push Backend1
+        run: |
+          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }} ./backend1
+          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
+      - run: sudo docker images
+      
