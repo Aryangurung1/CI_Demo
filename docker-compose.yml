@@ -2,8 +2,7 @@ version: "3.8"
 
 services:
   backend1:
-    build:
-      context: ./backend1
+    image: ${DOCKERHUB_USERNAME}/backend1:latest
     container_name: backend1
     env_file:
       - ./backend1/.env
@@ -15,8 +14,7 @@ services:
       - postgres
 
   backend2:
-    build:
-      context: ./backend2
+    image: ${DOCKERHUB_USERNAME}/backend2:latest
     container_name: backend2
     env_file:
       - ./backend2/.env
@@ -28,8 +26,7 @@ services:
       - postgres
 
   frontend:
-    build:
-      context: ./frontend
+    image: ${DOCKERHUB_USERNAME}/frontend:latest
     container_name: frontend
     ports:
       - "5173:5173"
@@ -40,9 +37,9 @@ services:
     image: postgres:alpine
     container_name: postgres
     environment:
-      POSTGRES_USER: fellowship
-      POSTGRES_PASSWORD: fellowship
-      POSTGRES_DB: fellowship
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     networks:
