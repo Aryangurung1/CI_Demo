@@ -22,10 +22,10 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Verify Docker Login
-        run: sudo docker info --format '{{.Name}}'
+        run: docker info --format '{{.Name}}'
 
       - name: List Docker Hub Repositories (Debug)
         run: |
@@ -46,11 +46,11 @@ jobs:
 
       - name: Build and Push Frontend
         run: |
-          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
-          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
 
       - name: List Docker Images
-        run: sudo docker images
+        run: docker images
 
   docker-build-push-backend:
     runs-on: [backend]
@@ -62,10 +62,10 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Verify Docker Login
-        run: sudo docker info --format '{{.Name}}'
+        run: docker info --format '{{.Name}}'
 
       - name: List Docker Hub Repositories (Debug)
         run: |
@@ -86,13 +86,13 @@ jobs:
 
       - name: Build and Push Backend1
         run: |
-          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tagOutputs.tag }} ./backend1
-          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }} ./backend1
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
 
       - name: Build and Push Backend2
         run: |
-          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }} ./backend2
-          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }}
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }} ./backend2
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }}
 
       - name: List Docker Images
-        run: sudo docker images
+        run: docker images
