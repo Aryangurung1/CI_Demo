@@ -94,7 +94,7 @@ jobs:
           else
             TAG=${GITHUB_REF#refs/tags/}
           fi
-          echo " Warn: $TAG" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Build and Push Backend1
         run: |
