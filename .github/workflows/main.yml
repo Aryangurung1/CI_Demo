@@ -65,7 +65,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Verify Docker Login
-        run: docker info --format '{{.Name}}'
+        run: sudo docker info --format '{{.Name}}'
 
       - name: List Docker Hub Repositories (Debug)
         run: |
@@ -86,13 +86,13 @@ jobs:
 
       - name: Build and Push Backend1
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tagOutputs.tag }} ./backend1
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
+          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tagOutputs.tag }} ./backend1
+          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
 
       - name: Build and Push Backend2
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }} ./backend2
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }}
+          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }} ./backend2
+          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }}
 
       - name: List Docker Images
-        run: docker images
+        run: sudo docker images
