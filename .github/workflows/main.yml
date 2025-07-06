@@ -168,6 +168,7 @@ jobs:
             docker compose --env-file .env pull
             docker compose --env-file .env up -d
 
-            docker exec -it backend1 yarn migrate
-            docker exec -it backend2 yarn migrate
+            docker exec backend1 yarn migrate
+            docker exec backend2 yarn migrate
+
           EOF
