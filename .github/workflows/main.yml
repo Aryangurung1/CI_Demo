@@ -18,11 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug User and Groups
+        run: |
+          whoami
+          groups
+          ls -l /var/run/docker.sock
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Verify Docker Login
         run: docker info --format '{{.Name}}'
@@ -58,11 +64,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug User and Groups
+        run: |
+          whoami
+          groups
+          ls -l /var/run/docker.sock
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Verify Docker Login
         run: docker info --format '{{.Name}}'
@@ -82,7 +94,7 @@ jobs:
           else
             TAG=${GITHUB_REF#refs/tags/}
           fi
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo " Warn: $TAG" >> $GITHUB_OUTPUT
 
       - name: Build and Push Backend1
         run: |
