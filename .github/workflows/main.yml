@@ -24,6 +24,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Verify Docker Login
+        run: sudo docker info
+
       - name: Set Docker Tag
         id: docker_tag
         run: |
@@ -39,10 +42,10 @@ jobs:
       - name: Build and Push Frontend
         run: |
           sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
-          echo "Pushing as: ${{ secrets.DOCKERHUB_USERNAME }}/backend1"
           sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
+
       - run: sudo docker images
-      
+
   docker-build-push-backend:
     runs-on: [backend]
     if: github.event_name != 'pull_request'
@@ -54,6 +57,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Verify Docker Login
+        run: sudo docker info
 
       - name: Set Docker Tag
         id: docker_tag
@@ -70,12 +76,11 @@ jobs:
       - name: Build and Push Backend1
         run: |
           sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }} ./backend1
-          echo "Pushing as: ${{ secrets.DOCKERHUB_USERNAME }}/backend1"
           sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ steps.docker_tag.outputs.tag }}
 
       - name: Build and Push Backend2
         run: |
           sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }} ./backend2
           sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ steps.docker_tag.outputs.tag }}
+
       - run: sudo docker images
-      
