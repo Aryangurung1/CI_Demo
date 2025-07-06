@@ -25,7 +25,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Verify Docker Login
-        run: docker info --format '{{.Name}}'
+        run: sudo docker info --format '{{.Name}}'
 
       - name: List Docker Hub Repositories (Debug)
         run: |
@@ -46,11 +46,11 @@ jobs:
 
       - name: Build and Push Frontend
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
+          sudo docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
+          sudo docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
 
       - name: List Docker Images
-        run: docker images
+        run: sudo docker images
 
   docker-build-push-backend:
     runs-on: [backend]
