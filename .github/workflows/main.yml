@@ -34,6 +34,7 @@ jobs:
             chore:patch
             docs:patch
             refactor:patch
+            BREAKING CHANGE:major
           bump_major_pre_major: true
 
       - name: Show New Tag
@@ -80,7 +81,7 @@ jobs:
 
   docker-build-push-backend:
     runs-on: backend
-    needs: version-and-tag
+    needs: [version-and-tag, docker-build-push]
     steps:
       - uses: actions/checkout@v4
 
