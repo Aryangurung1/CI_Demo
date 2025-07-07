@@ -144,7 +144,7 @@ const CreateBlog: React.FC = () => {
     <AppBar position="static" color="primary" elevation={2}>
       <Toolbar>
         <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 700 }}>
-          <Link to={"/blogs"}>FellowBlog</Link>
+          <Link to={"/blogs"}>FellowBlog idea</Link>
         </Typography>
         <IconButton color="inherit" size="large">
           {user?.imageUrl ? (
