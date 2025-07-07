@@ -11,7 +11,7 @@ on:
       - backend1/**
       - backend2/**
       - docker-compose.yml
-
+      - .github/workflows/main.yml
 jobs:
   version-and-tag:
     runs-on: ubuntu-latest
