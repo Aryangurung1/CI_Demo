@@ -142,6 +142,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.64.1_Linux-64bit.deb
+          sudo dpkg -i trivy_0.64.1_Linux-64bit.deb
+
       - name: Download Trivy HTML template
         run: curl -L https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o trivy-html.tpl
 
@@ -157,7 +164,7 @@ jobs:
         run: |
           trivy image --format template --template "@trivy-html.tpl" --output backend2-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
 
-      - name: Clone trivy-scan repo (use main branch)
+      - name: Clone trivy-scan repo (main branch)
         run: |
           git config --global user.email "kamina5432167890@gmail.com"
           git config --global user.name "Aryan Gurung"
