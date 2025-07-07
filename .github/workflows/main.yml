@@ -175,9 +175,10 @@ jobs:
 
   github-release:
     runs-on: frontend
-    needs: version-and-tag
+    needs: [docker-build-push, docker-build-push-backend, version-and-tag]
     steps:
       - uses: actions/checkout@v4
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -185,3 +186,5 @@ jobs:
           name: Release ${{ needs.version-and-tag.outputs.new_tag }}
           body: |
             New release: ${{ needs.version-and-tag.outputs.new_tag }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
