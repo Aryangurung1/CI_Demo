@@ -136,6 +136,46 @@ jobs:
         with:
           name: backend2-dist-${{ github.sha }}
           path: ./backend2/dist/
+  security-scan:
+    runs-on: frontend
+    needs: [docker-build-push, docker-build-push-backend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Trivy
+        uses: aquasecurity/trivy-action@master
+
+      - name: Run Trivy scan on frontend image
+        run: |
+          trivy image --format html --output frontend-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+
+      - name: Run Trivy scan on backend1 image
+        run: |
+          trivy image --format html --output backend1-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest
+
+      - name: Run Trivy scan on backend2 image
+        run: |
+          trivy image --format html --output backend2-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
+
+      - name: Clone trivy-scan repo
+        run: |
+          git config --global user.email "kamina5432167890@gmail.com"
+          git config --global user.name "Aryan Gurung"
+          git clone --branch gh-pages https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git
+          cd trivy-scan
+
+      - name: Replace existing scan reports
+        run: |
+          cd trivy-scan
+          cp ../frontend-scan.html ./scan/frontend/index.html
+          cp ../backend1-scan.html ./scan/backend1/index.html
+          cp ../backend2-scan.html ./scan/backend2/index.html
+
+      - name: Commit and push updated scan reports
+        run: |
+          cd trivy-scan
+          git add ./scan/frontend/index.html ./scan/backend1/index.html ./scan/backend2/index.html
+          git commit -m "update: new trivy scan reports"
+          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git gh-pages
 
   docker-deployment:
     runs-on: frontend
@@ -181,7 +221,7 @@ jobs:
             echo "POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
             echo "POSTGRES_DB=${{ secrets.DB_NAME }}" >> .env
             echo "DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}" >> .env
-            
+
             docker compose --env-file .env pull
             docker compose --env-file .env up -d
             docker exec backend1 yarn migrate
