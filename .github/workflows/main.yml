@@ -29,6 +29,11 @@ jobs:
           default_bump: patch
           tag_prefix: "v"
           custom_release_rules: |
+            feat!:major
+            fix!:major
+            chore!:major
+            docs!:major
+            refactor!:major
             feat:minor
             fix:patch
             chore:patch
@@ -136,33 +141,27 @@ jobs:
         with:
           name: backend2-dist-${{ github.sha }}
           path: ./backend2/dist/
+
   security-scan:
     runs-on: frontend
     needs: [docker-build-push, docker-build-push-backend]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Trivy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.64.1_Linux-64bit.deb
-          sudo dpkg -i trivy_0.64.1_Linux-64bit.deb
-
-      - name: Download Trivy HTML template
-        run: curl -L https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl -o trivy-html.tpl
+      - name: Verify Trivy Installation
+        run: trivy --version
 
       - name: Run Trivy scan on frontend image
         run: |
-          trivy image --format template --template "@trivy-html.tpl" --output frontend-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+          trivy image --format template --template "@/home/ubuntu/trivy-html.tpl" --output frontend-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
 
       - name: Run Trivy scan on backend1 image
         run: |
-          trivy image --format template --template "@trivy-html.tpl" --output backend1-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest
+          trivy image --format template --template "@/home/ubuntu/trivy-html.tpl" --output backend1-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest
 
       - name: Run Trivy scan on backend2 image
         run: |
-          trivy image --format template --template "@trivy-html.tpl" --output backend2-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
+          trivy image --format template --template "@/home/ubuntu/trivy-html.tpl" --output backend2-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
 
       - name: Clone trivy-scan repo (main branch)
         run: |
