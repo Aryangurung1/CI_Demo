@@ -133,7 +133,7 @@ const CreateBlog: React.FC = () => {
       );
       navigate("/blogs");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to create blog haha!");
+      setError(err.response?.data?.error || "Failed to create blog!");
     } finally {
       setLoading(false);
     }
