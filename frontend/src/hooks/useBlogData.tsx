@@ -80,7 +80,6 @@ export function useAllBlogs() {
   return { blogs, loading, error };
 }
 
-// Example: fetch user by id with Clerk session (for use in CreateBlog, etc.)
 export function useUserById(userId?: string) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
