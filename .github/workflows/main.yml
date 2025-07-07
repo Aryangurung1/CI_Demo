@@ -52,7 +52,10 @@ jobs:
 
       - name: Build and Push Frontend
         run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} ./frontend
+          docker build \
+          --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
+          -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }} \
+          ./frontend
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ steps.docker_tag.outputs.tag }}
 
       - name: List Docker Images

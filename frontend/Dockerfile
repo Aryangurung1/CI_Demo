@@ -7,9 +7,10 @@ RUN yarn install --frozen-lockfile
 
 COPY . .
 
+ARG VITE_CLERK_PUBLISHABLE_KEY
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+
 RUN yarn build
-
-
 
 FROM node:20-alpine AS runner
 
@@ -17,10 +18,8 @@ WORKDIR /app
 
 RUN yarn global add serve
 
-
 COPY --from=builder /app/dist /app/dist
 
 EXPOSE 5173
 
 CMD ["serve", "-s", "dist", "-l", "5173"]
-
