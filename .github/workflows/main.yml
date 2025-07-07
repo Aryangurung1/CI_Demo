@@ -141,34 +141,39 @@ jobs:
     needs: [docker-build-push, docker-build-push-backend]
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Trivy
-        uses: aquasecurity/trivy-action@master
 
       - name: Run Trivy scan on frontend image
-        run: |
-          trivy image --format html --output frontend-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+          format: "html"
+          output: "frontend-scan.html"
 
       - name: Run Trivy scan on backend1 image
-        run: |
-          trivy image --format html --output backend1-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest
+          format: "html"
+          output: "backend1-scan.html"
 
       - name: Run Trivy scan on backend2 image
-        run: |
-          trivy image --format html --output backend2-scan.html ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
+          format: "html"
+          output: "backend2-scan.html"
 
       - name: Clone trivy-scan repo
         run: |
           git config --global user.email "kamina5432167890@gmail.com"
           git config --global user.name "Aryan Gurung"
           git clone --branch gh-pages https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git
-          cd trivy-scan
 
       - name: Replace existing scan reports
         run: |
-          cd trivy-scan
-          cp ../frontend-scan.html ./scan/frontend/index.html
-          cp ../backend1-scan.html ./scan/backend1/index.html
-          cp ../backend2-scan.html ./scan/backend2/index.html
+          cp frontend-scan.html trivy-scan/scan/frontend/index.html
+          cp backend1-scan.html trivy-scan/scan/backend1/index.html
+          cp backend2-scan.html trivy-scan/scan/backend2/index.html
 
       - name: Commit and push updated scan reports
         run: |
