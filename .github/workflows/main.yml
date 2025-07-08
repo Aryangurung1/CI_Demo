@@ -47,18 +47,18 @@ jobs:
           tag_prefix: "v"
           fetch_all_tags: true
           custom_release_rules: |
-            feat!:major
-            fix!:major
-            chore!:major
-            docs!:major
-            refactor!:major
             feat:minor
             fix:patch
             chore:patch
             docs:patch
             refactor:patch
             BREAKING CHANGE:major
-          bump_major_pre_major: true
+
+      - name: Validate new tag value
+        if: ${{ steps.tag.outputs.new_tag == '' }}
+        run: |
+          echo "No new tag generated — likely no matching commit message or missing commits."
+          exit 1
 
       - name: Show New Tag
         run: echo "New version is ${{ steps.tag.outputs.new_tag }}"
