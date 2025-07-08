@@ -66,7 +66,7 @@ const CompleteSignup: React.FC = () => {
               }}
             >
               <Typography variant="body1" sx={{ mb: 2 }}>
-                Please sign in to continue
+                Please sign in to continue with your profile setup.
               </Typography>
               <SignInButton mode="modal">
                 <Button
