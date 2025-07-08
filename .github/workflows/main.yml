@@ -38,7 +38,7 @@ jobs:
         with:
           github_token: ${{ secrets.PAT_TOKEN }}
           release_branches: main
-          default_bump: patch
+          default_bump: false
           tag_prefix: "v"
           fetch_all_tags: true
           custom_release_rules: |
@@ -84,11 +84,16 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.version-and-tag.outputs.new_tag }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
           rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - name: Upload Frontend Build Artifacts
+      - name: Save Frontend Docker Image as tar
+        run: |
+          docker save -o frontend-${{ needs.version-and-tag.outputs.new_tag }}.tar ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.version-and-tag.outputs.new_tag }}
+
+      - name: Upload Frontend Docker Image tar Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist-${{ github.sha }}
-          path: ./frontend/dist/
+          name: frontend-${{ needs.version-and-tag.outputs.new_tag }}.tar
+          path: frontend-${{ needs.version-and-tag.outputs.new_tag }}.tar
+
   docker-build-push-backend:
     runs-on: backend
     needs: [version-and-tag, docker-build-push]
@@ -130,16 +135,26 @@ jobs:
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ needs.version-and-tag.outputs.new_tag }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
           rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-      - name: Upload Backend1 Build Artifacts
+      - name: Save Backend1 Docker Image as tar
+        run: |
+          docker save -o backend1-${{ needs.version-and-tag.outputs.new_tag }}.tar ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ needs.version-and-tag.outputs.new_tag }}
+
+      - name: Upload Backend1 Docker Image tar Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend1-dist-${{ github.sha }}
-          path: ./backend1/dist/
-      - name: Upload Backend2 Build Artifacts
+          name: backend1-${{ needs.version-and-tag.outputs.new_tag }}.tar
+          path: backend1-${{ needs.version-and-tag.outputs.new_tag }}.tar
+
+      - name: Save Backend2 Docker Image as tar
+        run: |
+          docker save -o backend2-${{ needs.version-and-tag.outputs.new_tag }}.tar ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ needs.version-and-tag.outputs.new_tag }}
+
+      - name: Upload Backend2 Docker Image tar Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: backend2-dist-${{ github.sha }}
-          path: ./backend2/dist/
+          name: backend2-${{ needs.version-and-tag.outputs.new_tag }}.tar
+          path: backend2-${{ needs.version-and-tag.outputs.new_tag }}.tar
+
   security-scan:
     runs-on: frontend
     needs: [docker-build-push, docker-build-push-backend]
