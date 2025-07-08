@@ -180,7 +180,7 @@ const CreateBlog: React.FC = () => {
         <Container maxWidth="sm" sx={{ mt: 4 }}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h5" gutterBottom>
-              Complete Your Profile
+              Complete Your Profile Aryan Hero
             </Typography>
             <Box component="form" onSubmit={handleSignup} noValidate>
               <TextField
