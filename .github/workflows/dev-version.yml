@@ -25,9 +25,10 @@ jobs:
 
       - name: Validate commit message format
         run: |
-          if [[ ! "${{ steps.commit_msg.outputs.commit_msg }}" =~ ^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?:\ .* ]]; then
-            echo "Commit message does not follow Conventional"
-            echo "Example: 'feat(auth): add login flow'"
+          if [[ ! "${{ steps.commit_msg.outputs.commit_msg }}" =~ ^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?!?:\ .* ]]; then
+            echo "Commit message does not follow Conventional Commit format"
+            echo "Example: 'feat(auth)!: add new login flow'"
+            echo "You must use types like: feat, fix, chore, etc. And optional scope. Use ! for breaking changes."
             exit 1
           fi
           echo "Commit message format is valid."
