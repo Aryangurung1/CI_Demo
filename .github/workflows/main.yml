@@ -20,13 +20,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Fetch all tags and check existing tags
+        run: |
+          git fetch --tags
+          echo "Existing tags:"
+          git tag || true
+
+      - name: Ensure at least one initial tag exists
+        run: |
+          git fetch --tags
+          if [ -z "$(git tag)" ]; then
+            echo "No tags found. Creating v0.0.0..."
+            git tag v0.0.0
+            git push origin v0.0.0
+          else
+            echo "Tags already exist."
+          fi
+
       - name: Bump and Tag Version (semantic versioning)
         id: tag
         uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.PAT_TOKEN }}
           release_branches: main
-          default_bump: patch
+          default_bump: false
           tag_prefix: "v"
           fetch_all_tags: true
           custom_release_rules: |
