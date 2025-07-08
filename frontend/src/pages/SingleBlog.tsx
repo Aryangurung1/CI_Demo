@@ -189,7 +189,7 @@ const SingleBlog: React.FC = () => {
                 color="primary"
                 onClick={handleShowCommentForm}
               >
-                Add Comment
+                Add Comment!
               </Button>
             </Box>
           ) : (
