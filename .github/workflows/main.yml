@@ -240,6 +240,8 @@ jobs:
         security-scan,
         docker-deployment,
       ]
+    outputs:
+      new_tag: ${{ needs.version-and-tag.outputs.new_tag }}
     steps:
       - uses: actions/checkout@v4
       - name: Create GitHub Release
@@ -248,9 +250,25 @@ jobs:
           tag_name: ${{ needs.version-and-tag.outputs.new_tag }}
           name: Release ${{ needs.version-and-tag.outputs.new_tag }}
           body: |
-            New release: ${{ needs.version-and-tag.outputs.new_tag }}
+
+            - feat(webhook): add support for webhook PRs (#8435) by @zjaco13
+            - feat(tapd): add ability to get tapd lifetime (#8369) by @GoSimplicity
+            - fix(jira): correct sprint name parsing logic (#8321) by @narrowizard
+            - chore(ci): update GitHub Actions to Ubuntu 24.04 (#8396) by @narrowizard
+
+
+            - @GoSimplicity made their first contribution in #8369
+
+
+            - [frontend-${{ needs.version-and-tag.outputs.new_tag }}.tar](https://aryangurung1.github.io/trivy-scan/downloads/frontend-${{ needs.version-and-tag.outputs.new_tag }}.tar)
+            - [backend1-${{ needs.version-and-tag.outputs.new_tag }}.tar](https://aryangurung1.github.io/trivy-scan/downloads/backend1-${{ needs.version-and-tag.outputs.new_tag }}.tar)
+            - [backend2-${{ needs.version-and-tag.outputs.new_tag }}.tar](https://aryangurung1.github.io/trivy-scan/downloads/backend2-${{ needs.version-and-tag.outputs.new_tag }}.tar)
+
+            > Full Changelog: [Compare v0.0.0...v${{ needs.version-and-tag.outputs.new_tag }}](https://github.com/Aryangurung1/Fellowship-Project/compare/v0.0.0...v${{ needs.version-and-tag.outputs.new_tag }})
+
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
   move-docker-artifacts:
     runs-on: frontend
     needs: github-release
@@ -265,11 +283,17 @@ jobs:
           git config --global user.name "Aryan Gurung"
           git clone --branch main https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git
 
+      - name: Debug Tag Value
+        run: echo "Resolved TAG is ${{ needs.github-release.outputs.new_tag }}"
+
+      - name: List downloaded artifacts
+        run: ls -R ./artifacts
+
       - name: Move and rename Docker artifacts
         run: |
           mkdir -p trivy-scan/downloads
 
-          TAG="${{ needs.version-and-tag.outputs.new_tag }}"
+          TAG=${{ needs.github-release.outputs.new_tag }}
 
           cp ./artifacts/frontend-${TAG}.tar trivy-scan/downloads/frontend-${TAG}.tar
           cp ./artifacts/frontend-${TAG}.tar trivy-scan/downloads/frontend-latest.tar
@@ -284,5 +308,5 @@ jobs:
         run: |
           cd trivy-scan
           git add ./downloads
-          git commit -m "update: add Docker image tarballs for version ${{ needs.version-and-tag.outputs.new_tag }}"
+          git commit -m "update: add Docker image tarballs for version ${{ needs.github-release.outputs.new_tag }}"
           git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git main
