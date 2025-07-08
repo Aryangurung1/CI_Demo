@@ -229,6 +229,7 @@ jobs:
             docker exec backend1 yarn migrate
             docker exec backend2 yarn migrate
           EOF
+
   github-release:
     runs-on: frontend
     needs:
@@ -250,3 +251,38 @@ jobs:
             New release: ${{ needs.version-and-tag.outputs.new_tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+  move-docker-artifacts:
+    runs-on: frontend
+    needs: github-release
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Clone trivy-scan repo
+        run: |
+          git config --global user.email "kamina5432167890@gmail.com"
+          git config --global user.name "Aryan Gurung"
+          git clone --branch main https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git
+
+      - name: Move and rename Docker artifacts
+        run: |
+          mkdir -p trivy-scan/downloads
+
+          TAG="${{ needs.version-and-tag.outputs.new_tag }}"
+
+          cp ./artifacts/frontend-${TAG}.tar trivy-scan/downloads/frontend-${TAG}.tar
+          cp ./artifacts/frontend-${TAG}.tar trivy-scan/downloads/frontend-latest.tar
+
+          cp ./artifacts/backend1-${TAG}.tar trivy-scan/downloads/backend1-${TAG}.tar
+          cp ./artifacts/backend1-${TAG}.tar trivy-scan/downloads/backend1-latest.tar
+
+          cp ./artifacts/backend2-${TAG}.tar trivy-scan/downloads/backend2-${TAG}.tar
+          cp ./artifacts/backend2-${TAG}.tar trivy-scan/downloads/backend2-latest.tar
+
+      - name: Commit and push Docker artifacts
+        run: |
+          cd trivy-scan
+          git add ./downloads
+          git commit -m "update: add Docker image tarballs for version ${{ needs.version-and-tag.outputs.new_tag }}"
+          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git main

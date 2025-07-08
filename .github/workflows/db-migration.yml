@@ -1,0 +1,40 @@
+name: Manual DB Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose migrate or rollback"
+        required: true
+        default: migrate
+        type: choice
+        options:
+          - migrate
+          - rollback
+
+jobs:
+  run-migration:
+    runs-on: frontend
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: SSH and run DB action on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
+            ACTION="${{ github.event.inputs.action }}"
+
+            if [ "$ACTION" == "migrate" ]; then
+              echo "Running DB migrations..."
+              docker exec backend1 yarn migrate
+              docker exec backend2 yarn migrate
+            elif [ "$ACTION" == "rollback" ]; then
+              echo "Rolling back DB migrations..."
+              docker exec backend1 yarn migrate:rollback
+              docker exec backend2 yarn migrate:rollback
+            else
+              echo "Invalid action. Must be migrate or rollback."
+              exit 1
+            fi
+          EOF
