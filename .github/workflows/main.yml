@@ -31,8 +31,10 @@ jobs:
           git fetch --tags
           if [ -z "$(git tag)" ]; then
             echo "No tags found. Creating v0.0.0..."
+            git config --global user.email "kamina5432167890@gmail.com"
+            git config --global user.name "Aryan Gurung"
             git tag v0.0.0
-            git push origin v0.0.0
+            git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }} v0.0.0
           else
             echo "Tags already exist."
           fi
