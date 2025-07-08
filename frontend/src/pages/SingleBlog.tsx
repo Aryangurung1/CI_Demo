@@ -214,7 +214,7 @@ const SingleBlog: React.FC = () => {
                   variant="contained"
                   disabled={commentLoading}
                 >
-                  Submit
+                  Submit Button
                 </Button>
               </Box>
             </Box>
