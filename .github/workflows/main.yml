@@ -54,7 +54,7 @@ jobs:
           echo "No new tag generated — likely no matching commit message or missing commits."
           exit 1
       - name: Show New Tag
-        run: echo "New version is ${{ steps.tag.outputs.new_tag }}
+        run: echo "New version is ${{ steps.tag.outputs.new_tag }}"
 
   docker-build-push:
     runs-on: frontend
