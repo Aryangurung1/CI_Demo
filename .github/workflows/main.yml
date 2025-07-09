@@ -54,7 +54,8 @@ jobs:
           echo "No new tag generated — likely no matching commit message or missing commits."
           exit 1
       - name: Show New Tag
-        run: echo "New version is ${{ steps.tag.outputs.new_tag }}"
+        run: echo "New version is ${{ steps.tag.outputs.new_tag }}
+
   docker-build-push:
     runs-on: frontend
     needs: version-and-tag
@@ -79,8 +80,9 @@ jobs:
             --cache-from=type=local,src=/tmp/.buildx-cache \
             --cache-to=type=local,dest=/tmp/.buildx-cache-new \
             --load \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.version-and-tag.outputs.new_tag }} ./frontend
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.version-and-tag.outputs.new_tag }} ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.version-and-tag.outputs.new_tag }} \
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest \
+            ./frontend
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{ needs.version-and-tag.outputs.new_tag }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
           rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
@@ -117,8 +119,9 @@ jobs:
             --cache-from=type=local,src=/tmp/.buildx-cache \
             --cache-to=type=local,dest=/tmp/.buildx-cache-new \
             --load \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ needs.version-and-tag.outputs.new_tag }} ./backend1
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ needs.version-and-tag.outputs.new_tag }} ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ needs.version-and-tag.outputs.new_tag }} \
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest \
+            ./backend1
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:${{ needs.version-and-tag.outputs.new_tag }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend1:latest
           rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
@@ -130,8 +133,9 @@ jobs:
             --cache-from=type=local,src=/tmp/.buildx-cache \
             --cache-to=type=local,dest=/tmp/.buildx-cache-new \
             --load \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ needs.version-and-tag.outputs.new_tag }} ./backend2
-          docker tag ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ needs.version-and-tag.outputs.new_tag }} ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ needs.version-and-tag.outputs.new_tag }} \
+            --tag ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest \
+            ./backend2
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:${{ needs.version-and-tag.outputs.new_tag }}
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend2:latest
           rm -rf /tmp/.buildx-cache && mv /tmp/.buildx-cache-new /tmp/.buildx-cache
@@ -187,6 +191,7 @@ jobs:
           git add ./scan/frontend/index.html ./scan/backend1/index.html ./scan/backend2/index.html
           git commit -m "update: new trivy scan reports"
           git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/Aryangurung1/trivy-scan.git main
+
   docker-deployment:
     runs-on: frontend
     needs: [docker-build-push, docker-build-push-backend, security-scan]
