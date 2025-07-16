@@ -26,7 +26,7 @@ import { useUser, useAuth } from "@clerk/clerk-react";
 import axios from "axios";
 import { marked } from "marked";
 
-const COMMENTS_API = "http://13.204.56.0:5435/api/comments";
+const COMMENTS_API = "http://54.236.9.68:5435/api/comments";
 
 const SingleBlog: React.FC = () => {
   const { id } = useParams<{ id: string }>();
